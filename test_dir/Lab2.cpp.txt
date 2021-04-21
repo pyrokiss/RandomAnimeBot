@@ -1,0 +1,108 @@
+#include omp.h
+#include iostream
+#include unordered_map
+constexpr auto N = 50;
+using namespace std;
+
+void task_1();
+void task_2();
+void task_3();
+
+int main() {
+    setlocale(LC_CTYPE, rus);
+    task_1();
+    cout  endl  endl;
+    cout  +=====================================+  endl;
+    cout  +=====ТУТ МОЖЕТ БЫТЬ ВАША РЕКЛАМА=====+  endl;
+    cout  +=====================================+  endl;
+    cout  endl;
+    task_2();
+    cout  endl  endl;
+    cout  +=====================================+  endl;
+    cout  +=====ТУТ МОЖЕТ БЫТЬ ВАША РЕКЛАМА=====+  endl;
+    cout  +=====================================+  endl;
+    cout  endl;
+    task_3();
+    return 0;
+}
+
+void task_1() {
+    cout  Задание 1  endl  endl;
+#ifdef _OPENMP
+    cout  OpenMP поддерживается!  endl  endl;
+#endif
+
+    double start, end, tick;
+    start = omp_get_wtime();
+    end = omp_get_wtime();
+    tick = omp_get_wtick();
+    cout  Время на измерение времени   end - start   секунд  endl;
+    cout  Точность таймера   tick   секунд  endl;
+
+    double time1 = omp_get_wtime();
+#pragma omp parallel 
+    {
+        cout  Привет, Мир!n;
+    }
+    double time2 = omp_get_wtime();
+    cout  Несколько потоков   time2 - time1   секунд  endl;
+
+    double time3 = omp_get_wtime();
+    cout  Я тут!  endl;
+
+    double time4 = omp_get_wtime();
+    cout  Один поток   time4 - time3   секунд  endl;
+}
+
+void task_2() {
+    cout  Задание 2  endl  endl;
+    double a[N][N], b[N][N], c[N][N]; 
+    int i, j, k; 
+    double t1, t2, t3, t4; 
+    for(i=0; iN; i++)
+        for(j=0; jN; j++)
+            a[i][j]=b[i][j]=ij;
+    t1 = omp_get_wtime();
+#pragma omp parallel for shared(a, b, c) private(i, j, k)
+    for(i=0; iN; i++){
+        for(j=0; jN; j++){
+            c[i][j] =0.0;
+            for(k=0; kN; k++) 
+                c[i][j]+=a[i][k]b[k][j];
+        }
+    }
+    
+    t2=omp_get_wtime();
+    cout  Время для нескольких потоков   t2-t1  endl;
+
+    t3 = omp_get_wtime();
+    for (i = 0; i  N; i++) {
+        for (j = 0; j  N; j++) {
+            c[i][j] = 0.0;
+            for (k = 0; k  N; k++)
+                c[i][j] += a[i][k]  b[k][j];
+        }
+    }
+    t4 = omp_get_wtime();
+    cout  Время для одного потока   t4 - t3  endl;
+}
+
+void task_3() {
+    cout  Задание 3  endl  endl;
+    int i, j, sum;
+    float total = 0;
+    double a[N][N];
+    for (i = 0; i  N; i++)
+        for (j = 0; j  N; j++)
+            a[i][j] = i  j;
+
+#pragma omp parallel for shared(a) private(i, j, sum) reduction(+total)
+    for(i=0; i N; i++) {
+        sum =0;
+        for(j=0; j N; j++)
+            sum +=a[i][j];
+        cout  Сумма элементов строки   i   равна   sum n;
+        total = total + sum;
+    }  Завершение параллельного фрагмента 
+    cout  endl Общая сумма элементов матрицы равна   total  endl;
+}
